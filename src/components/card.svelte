@@ -14,7 +14,7 @@
     function handleDragStart(item) {
         dispatch("item-dragged", item );
     }
-    // deleted ticket
+    // deleted card
     function deleteItem(arrayName, itemId, tableId, revId, rowId) {
         // find the array in which the item to delete exists
         const array = columns[arrayName];
@@ -38,16 +38,16 @@
             })
         }
     }
-    // add event to allow for tickets to be updated
+    // add event to allow for cards to be updated
     const handleClick = e => {
         if (onClick) {
-            onClick({ ticketId: e._id })
+            onClick({ cardId: e._id })
         }
     }
 </script>
   
 {#each column as item (item["Auto ID"])}
-    <div class="kanban-tickets" 
+    <div class="kanban-cards" 
         draggable="true" on:dragstart={() => handleDragStart(item)}
         on:click={() => handleClick(item)}
         on:keydown={(event) => {
@@ -69,7 +69,7 @@
 {/each}
   
 <style>
-    .kanban-tickets {
+    .kanban-cards {
         background-color: white;
         margin: 0.5rem 0;
         padding: 0.5rem;

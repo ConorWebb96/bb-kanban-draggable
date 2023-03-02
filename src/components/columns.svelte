@@ -1,6 +1,6 @@
 <script>
     import { getContext } from "svelte"
-    import Ticket from "./ticket.svelte";
+    import Card from "./card.svelte";
 
     // variables
     export let columns;
@@ -12,7 +12,7 @@
     let draggedItem;
     const component = getContext("component");
     const { API, notificationStore } = getContext("sdk");
-    // set emitted item from ticket component
+    // set emitted item from card component
     function handleDragStart(event) {
         draggedItem = event.detail;
     }
@@ -51,14 +51,14 @@
             [originalArrayName]: originalArray,
             [droppedArrayName]: droppedArray
         };
-        // save ticket in the backend after its moved.
+        // save card in the backend after its moved.
         API.saveRow({
             _id: draggedItem._id,
             tableId: draggedItem.tableId,
             Title: draggedItem.Title,
             [kabanCardTitles]: [draggedItem[kabanCardTitles]]
         });
-        notificationStore.actions.success(`Your ticket ${draggedItem.Title} has been successfully moved!`);
+        notificationStore.actions.success(`Your card ${draggedItem.Title} has been successfully moved!`);
     }
     function deleteColumn(columnName) {
         const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId })); // reduce statuses the array for more mangable data
@@ -70,7 +70,7 @@
         // confirm deletion of column
         const confirmed = confirm(`Are you sure you want to delete the ${columnName} column?`);
         if (confirmed) {
-            // move any tickets in the specified column to Backlog
+            // move any cards in the specified column to Backlog
             if (columns[columnName]) {
                 let findBacklogStatus;
                 if (!columns["Backlog"]) {
@@ -82,12 +82,12 @@
                     });
                     backlogTable.then((data) => {
                         findBacklogStatus = data; // set findBacklogStatus to the newly created backlog
-                        // bulk move tickets within the backend to backlog
-                        columns[columnName].forEach((ticket) => {
+                        // bulk move cards within the backend to backlog
+                        columns[columnName].forEach((card) => {
                             API.saveRow({
-                                _id: ticket._id,
-                                tableId: ticket.tableId,
-                                Title: ticket.Title,
+                                _id: card._id,
+                                tableId: card.tableId,
+                                Title: card.Title,
                                 [kabanCardTitles]: [findBacklogStatus]
                             });
                         })
@@ -96,12 +96,12 @@
                     });
                 } else {
                     findBacklogStatus = reducedStatuses.find(status => status.Name === 'Backlog'); // find backlog data within arr
-                    // bulk move tickets within the backend to backlog
-                    columns[columnName].forEach((ticket) => {
+                    // bulk move cards within the backend to backlog
+                    columns[columnName].forEach((card) => {
                         API.saveRow({
-                            _id: ticket._id,
-                            tableId: ticket.tableId,
-                            Title: ticket.Title,
+                            _id: card._id,
+                            tableId: card.tableId,
+                            Title: card.Title,
                             [kabanCardTitles]: [findBacklogStatus]
                         });
                     })
@@ -120,6 +120,9 @@
         // Refresh the columns
         columns = columns; 
         notificationStore.actions.success(`Your column ${columnName} has been successfully deleted!`);
+    }
+    function addCard() {
+
     }
 </script>
 
@@ -144,8 +147,8 @@
             }}
             class="h-full"
         >
-            <Ticket {columns} {column} {arrayName} {onClick} on:item-dragged={handleDragStart} on:columnsUpdated={handleColumnsUpdated} />
-            <!-- <button on:click={} class="ml-5">Add Card</button> -->
+            <Card {columns} {column} {arrayName} {onClick} on:item-dragged={handleDragStart} on:columnsUpdated={handleColumnsUpdated} />
+            <button on:click={addCard} class="ml-5">Add Card</button>
         </div>
     </div>
 {/each}

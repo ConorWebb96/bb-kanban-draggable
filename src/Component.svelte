@@ -23,9 +23,9 @@
       data.forEach((status) => {
         columns[status.Name] = [];
       })
-      dataProvider.rows.forEach((ticket) => {
-        const state = ticket[kabanCardTitles][0].primaryDisplay;
-        columns[state].push(ticket);
+      dataProvider.rows.forEach((card) => {
+        const state = card[kabanCardTitles][0].primaryDisplay;
+        columns[state].push(card);
       });
     }).catch(err => {
         console.log(err) // logging the error to the console.
