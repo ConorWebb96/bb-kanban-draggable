@@ -36,6 +36,7 @@
                 rowId: rowId,
                 revId: revId
             })
+            notificationStore.actions.success(`Your card has been successfully deleted!`);
         }
     }
     // add event to allow for cards to be updated
