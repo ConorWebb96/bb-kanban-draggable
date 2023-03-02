@@ -1,0 +1,52 @@
+{
+  "type": "component",
+  "metadata": {},
+  "schema": {
+    "name": "bb-kanban-draggable",
+    "friendlyName": "bb-kanban-draggable",
+    "description": "Dragable Kanban cards area allowing for status changes.",
+    "icon": "ViewColumn",
+    "features": {
+      "state": true,
+      "showNotificationAction": true,
+      "sidePanel": true,
+      "rowSelection": true
+    },
+    "settings": [
+      {
+        "type": "text",
+        "key": "text",
+        "label": "Text"
+      },
+      {
+        "type": "dataProvider",
+        "label": "Provider",
+        "key": "dataProvider",
+        "required": true
+      },
+      {
+        "type": "field",
+        "label": "Kaban Card Titles",
+        "key": "kabanCardTitles",
+        "dependsOn": "dataProvider",
+        "required": true
+      },
+      {
+        "type": "table",
+        "key": "table",
+        "label": "Relationship table"
+      },
+      {
+        "type": "event",
+        "label": "On Click",
+        "key": "onClick",
+        "context": [
+          {
+            "label": "Ticket Id",
+            "key": "ticketId"
+          }
+        ]
+      }
+    ]
+  }
+}
