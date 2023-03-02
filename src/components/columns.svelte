@@ -9,6 +9,8 @@
     export let tableStatuses;
     export let kabanCardTitles;
     export let onClick;
+    export let cardsTableId;
+    export let fetchTables;
     let draggedItem;
     const component = getContext("component");
     const { API, notificationStore } = getContext("sdk");
@@ -119,8 +121,33 @@
         columns = columns; 
         notificationStore.actions.success(`Your column ${columnName} has been successfully deleted!`);
     }
-    function addCard() {
-
+    // add new card to specific column
+    async function addCard(arrayName) {
+        const findAddStatus = reducedStatuses.find(status => status.Name === arrayName); // find specific object within reduce statuses arr
+        try {
+            // save card in the backend after its moved.
+            await API.saveRow({
+                tableId: cardsTableId,
+                Title: "New Card",
+                Description: "",
+                [kabanCardTitles]: [findAddStatus]
+            });
+            // Call the fetchData function
+            // await fetchTables();
+            columns[arrayName] = [  
+                ...columns[arrayName],
+                {
+                    Title: "New Card",
+                    Description: "",
+                    [kabanCardTitles]: [findAddStatus]
+                }
+            ];
+            // update current column details
+        }catch(error){
+            console.log(error);
+        }
+        console.log(columns);
+        notificationStore.actions.success(`Your new card has been added to ${arrayName}!`);
     }
 </script>
 
@@ -146,7 +173,7 @@
             class="h-full"
         >
             <Card {columns} {column} {arrayName} {onClick} on:item-dragged={handleDragStart} on:columnsUpdated={handleColumnsUpdated} />
-            <button class="ml-5" on:click={() => addCard(arrayName, column)}>Add Card</button>
+            <button class="ml-5" on:click={() => addCard(arrayName)}>Add Card</button>
         </div>
     </div>
 {/each}

@@ -11,7 +11,7 @@
   let droppable;
   let columnsLoaded = false;
   let kabanColumns;
-  const ticketsTableId = dataProvider.datasource.tableId;
+  const cardsTableId = dataProvider.datasource.tableId;
   const statusTableId = table.tableId;
 
   const { styleable, API, notificationStore } = getContext("sdk");
@@ -95,6 +95,8 @@
               {tableStatuses}
               {kabanCardTitles}
               {onClick}
+              {cardsTableId}
+              {fetchTables}
               bind:this={kabanColumns}
           />
       </div>
