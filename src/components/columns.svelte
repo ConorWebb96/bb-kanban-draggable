@@ -81,14 +81,13 @@
                         Name: "Backlog"
                     });
                     backlogTable.then((data) => {
-                        findBacklogStatus = data; // set findBacklogStatus to the newly created backlog
                         // bulk move cards within the backend to backlog
-                        columns[columnName].forEach((card) => {
+                        columns["Backlog"].forEach((card) => {
                             API.saveRow({
                                 _id: card._id,
                                 tableId: card.tableId,
                                 Title: card.Title,
-                                [kabanCardTitles]: [findBacklogStatus]
+                                [kabanCardTitles]: [data]
                             });
                         })
                     }).catch((error) => {
@@ -148,7 +147,7 @@
             class="h-full"
         >
             <Card {columns} {column} {arrayName} {onClick} on:item-dragged={handleDragStart} on:columnsUpdated={handleColumnsUpdated} />
-            <button on:click={addCard} class="ml-5">Add Card</button>
+            <button class="ml-5" on:click={() => addCard(arrayName, column)}>Add Card</button>
         </div>
     </div>
 {/each}
