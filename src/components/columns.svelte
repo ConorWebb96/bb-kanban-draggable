@@ -12,6 +12,7 @@
     let draggedItem;
     const component = getContext("component");
     const { API, notificationStore } = getContext("sdk");
+    const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId })); // reduce statuses the array for more mangable data
     // set emitted item from card component
     function handleDragStart(event) {
         draggedItem = event.detail;
@@ -22,7 +23,6 @@
     }
     // move items kaban style
     function moveItem() {
-        const reducedStatuses = tableStatuses.map(({ _id, Name }) => ({ _id, Name })); // reduce statuses the array for more mangable data
         const findDroppedStatusObj = reducedStatuses.find(status => status.Name === droppedArrayName); // find specific object within reduce statuses arr
         // delete state field and update with new moved state info
         delete draggedItem[kabanCardTitles];
@@ -61,7 +61,6 @@
         notificationStore.actions.success(`Your card ${draggedItem.Title} has been successfully moved!`);
     }
     function deleteColumn(columnName) {
-        const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId })); // reduce statuses the array for more mangable data
         const findDeletedColumn = reducedStatuses.find(status => status.Name === columnName); // find specific object within reduce statuses arr
         // prevent deleting of the Backlog column
         if (columnName === "Backlog") { 
