@@ -3,9 +3,14 @@
   "metadata": {},
   "schema": {
     "name": "bb-kanban-draggable",
-    "friendlyName": "bb-kanban-draggable",
+    "friendlyName": "Kanban",
     "description": "Dragable Kanban cards area allowing for status changes.",
     "icon": "ViewColumn",
+    "draggable": false,
+    "size": {
+      "width": 1080,
+      "height": 550
+    },
     "features": {
       "state": true,
       "showNotificationAction": true,
@@ -15,8 +20,8 @@
     "settings": [
       {
         "type": "text",
-        "key": "text",
-        "label": "Text"
+        "key": "title",
+        "label": "Title"
       },
       {
         "type": "dataProvider",
@@ -42,8 +47,8 @@
         "key": "onClick",
         "context": [
           {
-            "label": "Ticket Id",
-            "key": "ticketId"
+            "label": "Card ID",
+            "key": "cardId"
           }
         ]
       }
