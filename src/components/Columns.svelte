@@ -16,11 +16,12 @@
   let draggedItem;
   const component = getContext("component");
   const { API, notificationStore } = getContext("sdk");
+  // reduce statuses the array for more mangable data
   const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({
     _id,
     Name,
     tableId,
-  })); // reduce statuses the array for more mangable data
+  }));
   // set emitted item from card component
   function handleDragStart(event) {
     draggedItem = event.detail;
@@ -31,9 +32,10 @@
   }
   // move items kaban style
   function moveItem() {
+    // find specific object within reduce statuses arr
     const findDroppedStatusObj = reducedStatuses.find(
       (status) => status.Name === draggedArrayName
-    ); // find specific object within reduce statuses arr
+    );
     // delete state field and update with new moved state info
     delete draggedItem[kabanCardTitles];
     draggedItem[kabanCardTitles] = {
@@ -78,9 +80,10 @@
     draggedArrayName = null;
   }
   function deleteColumn(columnName) {
+    // find specific object within reduce statuses arr
     const findDeletedColumn = reducedStatuses.find(
       (status) => status.Name === columnName
-    ); // find specific object within reduce statuses arr
+    ); 
     // prevent deleting of the Backlog column
     if (columnName === "Backlog") {
       return;
@@ -116,9 +119,10 @@
               console.error(error);
             });
         } else {
+          // find backlog data within arr
           findBacklogStatus = reducedStatuses.find(
             (status) => status.Name === "Backlog"
-          ); // find backlog data within arr
+          ); 
           // bulk move cards within the backend to backlog
           columns[columnName].forEach((card) => {
             API.saveRow({
@@ -148,9 +152,10 @@
   }
   // add new card to specific column
   async function addCard(arrayName) {
+    // find specific object within reduce statuses arr
     const findAddStatus = reducedStatuses.find(
       (status) => status.Name === arrayName
-    ); // find specific object within reduce statuses arr
+    ); 
     try {
       // save card in the backend after its moved.
       await API.saveRow({
