@@ -18,7 +18,6 @@
   function deleteItem(arrayName, itemId, tableId, revId, rowId) {
     // find the array in which the item to delete exists
     const array = columns[arrayName];
-    console.log(array);
     // find the index of the item to delete
     const indexToDelete = array.findIndex((item) => item["Auto ID"] === itemId);
     if (indexToDelete !== -1) {
