@@ -62,6 +62,18 @@
       }
     }}
   >
+    {#if item.Images_first}
+      <div class="spectrum-Card-preview">
+        <div class="spectrum-Asset">
+          <img
+            alt="{item.Title} card thumbnail"
+            class="spectrum-Asset-image"
+            src={item.Images_first}
+            style="max-width: 75%; max-height: 75%; object-fit: contain;"
+          />
+        </div>
+      </div>
+    {/if}
     <div class="spectrum-Card-body">
       <div class="spectrum-Card-header flexed">
         <div
@@ -80,15 +92,15 @@
               item._rev,
               item._id
             )}
-          class="spectrum-ClearButton spectrum-ClearButton--sizeM spectrum-ClearButton--overBackground"
+          class="spectrum-ClearButton spectrum-ClearButton--sizeL"
         >
           <div class="spectrum-ClearButton-fill">
             <svg
-              class="spectrum-ClearButton-icon spectrum-Icon spectrum-UIIcon-Cross100"
+              class="spectrum-ClearButton-icon spectrum-Icon spectrum-UIIcon-Cross200"
               focusable="false"
               aria-hidden="true"
             >
-              <use xlink:href="#spectrum-css-icon-Cross100" />
+              <use xlink:href="#spectrum-css-icon-Cross200" />
             </svg>
           </div>
         </button>
@@ -123,8 +135,5 @@
   }
   button {
     cursor: pointer;
-  }
-  .delete svg {
-    color: red;
   }
 </style>
