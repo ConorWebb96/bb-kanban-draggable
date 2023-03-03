@@ -207,17 +207,17 @@
         {arrayName + " - " + column.length}
       </h2>
       <button
-        class="spectrum-ClearButton spectrum-ClearButton--sizeL spectrum-ClearButton--overBackground"
         disabled={arrayName === "Backlog"}
         on:click={deleteColumn(arrayName)}
+        class="spectrum-ClearButton spectrum-ClearButton--sizeXL"
       >
         <div class="spectrum-ClearButton-fill">
           <svg
-            class="spectrum-ClearButton-icon spectrum-Icon spectrum-UIIcon-Cross200"
+            class="spectrum-ClearButton-icon spectrum-Icon spectrum-UIIcon-Cross300"
             focusable="false"
             aria-hidden="true"
           >
-            <use xlink:href="#spectrum-css-icon-Cross200" />
+            <use xlink:href="#spectrum-css-icon-Cross300" />
           </svg>
         </div>
       </button>
@@ -227,12 +227,12 @@
         {column.length} cards
       </div>
       <button
-        class="spectrum-ClearButton spectrum-ClearButton--sizeM spectrum-ClearButton--overBackground"
+        class="spectrum-ClearButton spectrum-ClearButton--sizeL"
         on:click={addCard(arrayName)}
       >
         <div class="spectrum-ClearButton-fill">
           <svg
-            class="spectrum-Icon spectrum-ClearButton-icon spectrum-Icon--sizeM spectrum-icon-18-Add"
+            class="spectrum-Icon spectrum-ClearButton-icon spectrum-Icon--sizeL spectrum-icon-18-Add"
             focusable="false"
             aria-hidden="true"
           >
