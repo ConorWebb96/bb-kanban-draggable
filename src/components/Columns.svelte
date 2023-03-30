@@ -7,7 +7,8 @@
   export let draggedArrayName;
   export let droppable;
   export let tableStatuses;
-  export let kabanCardTitles;
+  export let kanbanCardTitles;
+  export let CardWidths;
   export let onClick;
   export let cardsTableId;
   export let fetchTables;
@@ -16,12 +17,8 @@
   let draggedItem;
   const component = getContext("component");
   const { API, notificationStore } = getContext("sdk");
+
   // reduce statuses the array for more mangable data
-  const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({
-    _id,
-    Name,
-    tableId,
-  }));
   // set emitted item from card component
   function handleDragStart(event) {
     draggedItem = event.detail;
@@ -30,15 +27,16 @@
   function handleColumnsUpdated(event) {
     columns = event.detail;
   }
-  // move items kaban style
+  // move items kanban style
   function moveItem() {
+    const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId }));
     // find specific object within reduce statuses arr
     const findDroppedStatusObj = reducedStatuses.find(
       (status) => status.Name === draggedArrayName
     );
     // delete state field and update with new moved state info
-    delete draggedItem[kabanCardTitles];
-    draggedItem[kabanCardTitles] = {
+    delete draggedItem[kanbanCardTitles];
+    draggedItem[kanbanCardTitles] = {
       _id: findDroppedStatusObj._id,
       primaryDisplay: findDroppedStatusObj.Name,
     };
@@ -72,7 +70,7 @@
       _id: draggedItem._id,
       tableId: draggedItem.tableId,
       Title: draggedItem.Title,
-      [kabanCardTitles]: [draggedItem[kabanCardTitles]],
+      [kanbanCardTitles]: [draggedItem[kanbanCardTitles]],
     });
     notificationStore.actions.success(
       `Your card ${draggedItem.Title} has been successfully moved!`
@@ -80,6 +78,7 @@
     draggedArrayName = null;
   }
   function deleteColumn(columnName) {
+    const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId }));
     // find specific object within reduce statuses arr
     const findDeletedColumn = reducedStatuses.find(
       (status) => status.Name === columnName
@@ -111,7 +110,7 @@
                   _id: card._id,
                   tableId: card.tableId,
                   Title: card.Title,
-                  [kabanCardTitles]: [data],
+                  [kanbanCardTitles]: [data],
                 });
               });
             })
@@ -129,7 +128,7 @@
               _id: card._id,
               tableId: card.tableId,
               Title: card.Title,
-              [kabanCardTitles]: [findBacklogStatus],
+              [kanbanCardTitles]: [findBacklogStatus],
             });
           });
         }
@@ -145,6 +144,7 @@
       delete columns[columnName];
     }
     // Refresh the columns
+    fetchTables();
     columns = columns;
     notificationStore.actions.success(
       `Your column ${columnName} has been successfully deleted!`
@@ -152,6 +152,7 @@
   }
   // add new card to specific column
   async function addCard(arrayName) {
+    const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId }));
     // find specific object within reduce statuses arr
     const findAddStatus = reducedStatuses.find(
       (status) => status.Name === arrayName
@@ -162,33 +163,23 @@
         tableId: cardsTableId,
         Title: "New Card",
         Description: "",
-        [kabanCardTitles]: [findAddStatus],
+        [kanbanCardTitles]: [findAddStatus],
       });
-      // Call the fetchData function
-      // await fetchTables();
-      columns[arrayName] = [
-        ...columns[arrayName],
-        {
-          Title: "New Card",
-          Description: "",
-          [kabanCardTitles]: [findAddStatus],
-        },
-      ];
-      // update current column details
     } catch (error) {
       console.log(error);
     }
-    console.log(columns);
+    // Call the fetchData function
+    await fetchTables();
+    // update current column details
+    columns = columns;
     notificationStore.actions.success(
       `Your new card has been added to ${arrayName}!`
     );
   }
-
   function handleDragover(name) {
     draggedArrayName = name;
     droppable.classList.add("droppable");
   }
-
   function handleDragleave(name) {
     draggedArrayName = null;
     droppable.classList.remove("droppable");
@@ -202,8 +193,8 @@
     on:dragover|preventDefault={handleDragover(arrayName)}
     on:dragleave|preventDefault={handleDragleave(arrayName)}
     on:drop|preventDefault={moveItem}
+    style="min-width: {CardWidths}px;"
     role="region"
-    style="width: 300px;"
   >
     <div class="flexed">
       <h2
@@ -266,8 +257,6 @@
     /* background-color: #a4a4a4; */
     padding: 1rem;
     border-radius: 0.5rem;
-    min-width: 350px;
-    max-width: 350px;
   }
   .kanban-column:first-child {
     margin-left: 0;
@@ -286,7 +275,6 @@
     max-height: 500px;
     overflow-y: auto;
   }
-
   .spectrum-Dropzone {
     border-style: solid;
   }
