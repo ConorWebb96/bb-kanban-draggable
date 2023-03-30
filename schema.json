@@ -24,6 +24,13 @@
         "label": "Title"
       },
       {
+        "type": "number",
+        "label": "Card widths",
+        "key": "CardWidths",
+        "defaultValue": 250,
+        "min": 200
+      },
+      {
         "type": "dataProvider",
         "label": "Provider",
         "key": "dataProvider",
@@ -31,8 +38,8 @@
       },
       {
         "type": "field",
-        "label": "Kaban Card Titles",
-        "key": "kabanCardTitles",
+        "label": "Kanban Card Titles",
+        "key": "kanbanCardTitles",
         "dependsOn": "dataProvider",
         "required": true
       },
