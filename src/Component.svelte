@@ -1,6 +1,6 @@
 <script>
   import { getContext, onMount } from "svelte";
-  import KabanColumns from "./components/Columns.svelte";
+  import KanbanColumns from "./components/Columns.svelte";
   import {
     Input,
     Label,
@@ -13,15 +13,16 @@
   // variables
   export let dataProvider;
   export let table;
-  export let kabanCardTitles;
+  export let kanbanCardTitles;
   export let onClick;
-  export let title = "";
+  export let CardWidths;
+  export let title;
 
   let tableStatuses = [];
   let columns = {};
   let droppable;
   let columnsLoaded = false;
-  let kabanColumns;
+  let kanbanColumns;
   let modal;
   let newColumnTitle;
 
@@ -30,26 +31,37 @@
 
   const { styleable, API, notificationStore } = getContext("sdk");
   const component = getContext("component");
-  // fetch tables function
-  function fetchTables() {
-    API.fetchTableData(statusTableId)
+  // fetch cards table
+  function fetchCardsTable() {
+    return API.fetchTableData(cardsTableId)
       .then(function (data) {
-        // get the promised statusTable data
-        tableStatuses = data; // set table status after looping of data
-        data.forEach((status) => {
-          columns[status.Name] = [];
-        });
-        dataProvider.rows.forEach((card) => {
-          const state = card[kabanCardTitles][0].primaryDisplay;
-          columns[state].push(card);
-        });
+        dataProvider.rows = data;
+        return data;
       })
       .catch((err) => {
         console.log(err); // logging the error to the console.
-      })
-      .finally(function () {
-        columnsLoaded = true; // set columns loaded to true after this opperation has been completed
       });
+  }
+  async function fetchTables() {
+    try {
+      await fetchCardsTable();
+      API.fetchTableData(statusTableId).then(function (data){
+          tableStatuses = data; // set table status after looping of data
+          data.forEach((status) => {
+            columns[status.Name] = [];
+          });
+          dataProvider.rows.forEach((card) => {
+            const state = card[kanbanCardTitles][0].primaryDisplay;
+            columns[state].push(card);
+          });
+      }).catch((err) => {
+        console.log(err);
+      }).finally(function () {
+        columnsLoaded = true;
+      });
+    } catch(error){
+      console.log("Unable to fetch cards table");
+    }
   }
   // on page load
   onMount(() => {
@@ -128,21 +140,22 @@
       on:drop|preventDefault={() => handleDrop}
       bind:this={droppable}
     >
-      <KabanColumns
+      <KanbanColumns
         {columns}
         {droppable}
         {tableStatuses}
-        {kabanCardTitles}
+        {kanbanCardTitles}
         {onClick}
         {cardsTableId}
+        {CardWidths}
         {fetchTables}
-        bind:this={kabanColumns}
+        bind:this={kanbanColumns}
       />
     </div>
     <p>You have a total of {Object.keys(columns).length} columns</p>
 
     <Modal bind:this={modal}>
-      <ModalContent title="Add Column" size="XL" onConfirm={addColumn}>
+      <ModalContent title="Add Column" size="S" onConfirm={addColumn}>
         <form>
           <Layout noPadding gap="S">
             <div class="form-row">
