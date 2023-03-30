@@ -128,10 +128,6 @@
     align-items: center;
     justify-content: space-between;
   }
-  svg {
-    height: 1rem;
-    width: 1rem;
-  }
   button {
     cursor: pointer;
   }
