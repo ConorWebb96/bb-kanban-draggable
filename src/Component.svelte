@@ -7,7 +7,6 @@
     Layout,
     ModalContent,
     Modal,
-    Skeleton,
   } from "@budibase/bbui";
 
   // variables
@@ -48,7 +47,7 @@
       API.fetchTableData(statusTableId).then(function (data){
           tableStatuses = data; // set table status after looping of data
           data.forEach((status) => {
-            columns[status.Name] = [];
+            columns[status.Title] = [];
           });
           dataProvider.rows.forEach((card) => {
             const state = card[kanbanCardTitles][0].primaryDisplay;
@@ -89,18 +88,15 @@
   });
   // add new column
   async function addColumn() {
+    // check if column already exists, if it does don't let them create.
     if (newColumnTitle && !(newColumnTitle in columns)) {
-      // check if column already exists, if it does don't let them create.
-      const newColumnObject = [];
-      const newColumns = { [newColumnTitle]: newColumnObject, ...columns };
       try {
         await API.saveRow({
           // create a new column on the backend
           tableId: statusTableId,
-          Name: newColumnTitle,
+          Title: newColumnTitle,
         });
-        columns = newColumns;
-        fetchTables(); // reload main data after creating new column row
+        await fetchTables(); // reload main data after creating new column row
       } catch (error) {
         console.log(error);
       }
@@ -109,7 +105,7 @@
       );
     } else {
       notificationStore.actions.error(
-        "Sorry you have either tried to add a row without a name, or tried to create a duplicate column."
+        "Sorry you have either tried to add a row without a Title, or tried to create a duplicate column."
       );
     }
   }
@@ -118,7 +114,6 @@
     childComponent.moveItem();
   }
 </script>
-
 <div use:styleable={$component.styles} class="container">
   {#if !dataProvider || !table}
     <div class="placeholder">
@@ -126,14 +121,14 @@
     </div>
   {:else if columnsLoaded}
     <div class="header">
-      <h2>{title}</h2>
-      <div>
-        <button
-          on:click={modal.show()}
-          class="spectrum-Button spectrum-Button--sizeM spectrum-Button--cta"
-          >Add Column</button
-        >
-      </div>
+        <h2>{#if title}{title}{/if}</h2>
+        <div>
+          <button
+            on:click={modal.show()}
+            class="spectrum-Button spectrum-Button--sizeM spectrum-Button--cta"
+            >Add Column</button
+          >
+        </div>
     </div>
     <div
       class="kanban-board"
@@ -159,7 +154,7 @@
         <form>
           <Layout noPadding gap="S">
             <div class="form-row">
-              <Label>Column name</Label>
+              <Label>Column Title</Label>
               <Input on:change bind:value={newColumnTitle} />
             </div>
           </Layout>
@@ -167,7 +162,7 @@
       </ModalContent>
     </Modal>
   {:else}
-    <Skeleton />
+    Loading please wait...
   {/if}
 </div>
 
