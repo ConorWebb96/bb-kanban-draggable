@@ -7,14 +7,9 @@ Dragable Kanban cards area allowing for status changes.
 Find out more about [Budibase](https://github.com/Budibase/budibase).
 
 ## Instructions
+* Create a table with the following fields.
+    * Title, Description, Image
+    * Additional Fields - Assignee, Assigner
 
-To build your new  plugin run the following in your Budibase CLI:
-```
-budi plugins --build
-```
-
-You can also re-build everytime you make a change to your plugin with the command:
-```
-budi plugins --watch
-```
-
+* Create an additional table with the following fields
+    * Title and a relationship link between the ticket and the state field - one state to many tickets.
