@@ -13,7 +13,6 @@
   export let cardsTableId;
   export let fetchTables;
 
-  let draggedColumn;
   let draggedItem;
   const component = getContext("component");
   const { API, notificationStore } = getContext("sdk");
@@ -29,16 +28,16 @@
   }
   // move items kanban style
   function moveItem() {
-    const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId }));
+    const reducedStatuses = tableStatuses.map(({ _id, Title, tableId }) => ({ _id, Title, tableId }));
     // find specific object within reduce statuses arr
     const findDroppedStatusObj = reducedStatuses.find(
-      (status) => status.Name === draggedArrayName
+      (status) => status.Title === draggedArrayName
     );
     // delete state field and update with new moved state info
     delete draggedItem[kanbanCardTitles];
     draggedItem[kanbanCardTitles] = {
       _id: findDroppedStatusObj._id,
-      primaryDisplay: findDroppedStatusObj.Name,
+      primaryDisplay: findDroppedStatusObj.Title,
     };
     // find the dragged item in the original array
     const originalArrayName = Object.keys(columns).find((arrayName) =>
@@ -77,85 +76,90 @@
     );
     draggedArrayName = null;
   }
-  function deleteColumn(columnName) {
-    const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId }));
-    // find specific object within reduce statuses arr
-    const findDeletedColumn = reducedStatuses.find(
-      (status) => status.Name === columnName
-    ); 
-    // prevent deleting of the Backlog column
+  async function deleteColumn(columnName) {
+    // refresh tables before deleting
+    try {
+      await fetchTables();
+    } catch (error) {
+      console.log('Failed to fetch tables before deletions', error);
+    }
+    // find everything needed to perform the next actions.
+    const reducedStatuses = tableStatuses.map(({ _id, Title, tableId }) => ({ _id, Title, tableId }));
+    const findDeletedColumn = reducedStatuses.find((status) => status.Title === columnName);
     if (columnName === "Backlog") {
       return;
     }
-    // confirm deletion of column
-    const confirmed = confirm(
-      `Are you sure you want to delete the ${columnName} column?`
-    );
-    if (confirmed) {
-      // move any cards in the specified column to Backlog
-      if (columns[columnName]) {
-        let findBacklogStatus;
-        if (!columns["Backlog"]) {
-          columns["Backlog"] = [];
-          // create backlog if it doesn't exist
-          const backlogTable = API.saveRow({
-            tableId: findDeletedColumn.tableId,
-            Name: "Backlog",
-          });
-          backlogTable
-            .then((data) => {
-              // bulk move cards within the backend to backlog
-              columns["Backlog"].forEach((card) => {
-                API.saveRow({
-                  _id: card._id,
-                  tableId: card.tableId,
-                  Title: card.Title,
-                  [kanbanCardTitles]: [data],
-                });
-              });
-            })
-            .catch((error) => {
-              console.error(error);
-            });
-        } else {
-          // find backlog data within arr
-          findBacklogStatus = reducedStatuses.find(
-            (status) => status.Name === "Backlog"
-          ); 
+    if (!columns["Backlog"]) {
+      columns["Backlog"] = [];
+      try {
+        // create backlog if it doesn't exist
+        const backlogTable = API.saveRow({
+          tableId: findDeletedColumn.tableId,
+          Title: "Backlog",
+        });
+        await backlogTable.then((data) => {
           // bulk move cards within the backend to backlog
-          columns[columnName].forEach((card) => {
-            API.saveRow({
+          Promise.all(columns[columnName].map(async (card) => {
+            await API.saveRow({
               _id: card._id,
               tableId: card.tableId,
               Title: card.Title,
-              [kanbanCardTitles]: [findBacklogStatus],
+              [kanbanCardTitles]: [data],
             });
-          });
-        }
-        // delete column
-        API.deleteRow({
+          }));
+        })
+        .catch((error) => {
+          console.error('Error transfering the cards to default column', error);
+        });
+        await API.deleteRow({
           tableId: findDeletedColumn.tableId,
           rowId: findDeletedColumn._id,
           revId: findDeletedColumn._rev,
         });
+        // Update the columns object after successful deletion
         columns["Backlog"] = columns["Backlog"].concat(columns[columnName]);
+        delete columns[columnName];
+      } catch (error) {
+        console.log("Error creating backlog and moving tickets", error);
       }
-      // delete the specified column
-      delete columns[columnName];
+    }else {
+      // initialise find backlog status var
+      let findBacklogStatus = reducedStatuses.find((status) => status.Title === "Backlog");
+
+      try {
+        await Promise.all(columns[columnName].map(async (card) => {
+          await API.saveRow({
+            _id: card._id,
+            tableId: card.tableId,
+            Title: card.Title,
+            [kanbanCardTitles]: [findBacklogStatus],
+          });
+        }));
+
+        await API.deleteRow({
+          tableId: findDeletedColumn.tableId,
+          rowId: findDeletedColumn._id,
+          revId: findDeletedColumn._rev,
+        });
+
+        await fetchTables();
+
+        // Update the columns object after successful deletion
+        delete columns[columnName];
+      } catch (error) {
+        console.log("There was an error during deletion", error);
+      }
     }
-    // Refresh the columns
-    fetchTables();
-    columns = columns;
     notificationStore.actions.success(
       `Your column ${columnName} has been successfully deleted!`
     );
   }
   // add new card to specific column
   async function addCard(arrayName) {
-    const reducedStatuses = tableStatuses.map(({ _id, Name, tableId }) => ({ _id, Name, tableId }));
+    const reducedStatuses = tableStatuses.map(({ _id, Title, tableId }) => ({ _id, Title, tableId }));
     // find specific object within reduce statuses arr
     const findAddStatus = reducedStatuses.find(
-      (status) => status.Name === arrayName
+      (status) => status.Title === arrayName
     ); 
     try {
       // save card in the backend after its moved.
@@ -170,8 +174,6 @@
     }
     // Call the fetchData function
     await fetchTables();
-    // update current column details
-    columns = columns;
     notificationStore.actions.success(
       `Your new card has been added to ${arrayName}!`
     );
