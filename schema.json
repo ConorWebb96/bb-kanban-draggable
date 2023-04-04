@@ -27,8 +27,8 @@
         "type": "number",
         "label": "Card widths",
         "key": "CardWidths",
-        "defaultValue": 250,
-        "min": 200
+        "defaultValue": 300,
+        "min": 300
       },
       {
         "type": "dataProvider",
