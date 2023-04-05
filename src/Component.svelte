@@ -24,6 +24,19 @@
   let kanbanColumns;
   let modal;
   let newColumnTitle;
+  let searchQuery = "";
+
+  $: filteredColumns = searchQuery.length > 3
+  ? Object.entries(columns).reduce((result, [key, value]) => {
+      const filteredCards = value.filter(card => {
+        const regex = new RegExp(searchQuery, 'gi');
+        const match = (card.Title?.match(regex) || []).length > 0 ||
+          (card.Description?.match(regex) || []).length > 0;
+        return match;
+      });
+      return filteredCards.length ? { ...result, [key]: filteredCards } : result;
+    }, {})
+  : columns;
 
   const cardsTableId = dataProvider?.datasource.tableId;
   const statusTableId = table?.tableId;
@@ -122,7 +135,8 @@
   {:else if columnsLoaded}
     <div class="header">
         <h2>{#if title}{title}{/if}</h2>
-        <div>
+        <div class="header">
+          <input type="text" bind:value={searchQuery} placeholder="Search" class="customInput" />
           <button
             on:click={modal.show()}
             class="spectrum-Button spectrum-Button--sizeM spectrum-Button--cta"
@@ -136,7 +150,7 @@
       bind:this={droppable}
     >
       <KanbanColumns
-        {columns}
+        columns={filteredColumns}
         {droppable}
         {tableStatuses}
         {kanbanCardTitles}
@@ -165,7 +179,6 @@
     Loading please wait...
   {/if}
 </div>
-
 <style>
   *:focus {
     outline: none;
@@ -188,5 +201,12 @@
   }
   .placeholder {
     color: var(--spectrum-global-color-gray-600);
+  }
+  .customInput {
+    display: block;
+    border-radius: 4px;
+    border: 1px solid rgb(220 220 220);
+    padding: 6px;
+    margin-right: 0.5rem;
   }
 </style>
