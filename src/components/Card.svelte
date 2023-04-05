@@ -13,7 +13,6 @@
   function handleDragStart(item) {
     dispatch("item-dragged", item);
   }
-
   // deleted card
   function deleteItem(arrayName, itemId, tableId, revId, rowId) {
     // find the array in which the item to delete exists
@@ -40,7 +39,6 @@
       );
     }
   }
-
   // add event to allow for cards to be updated
   const handleClick = (item) => {
     if (onClick) {
@@ -61,17 +59,13 @@
       }
     }}
   >
-    {#if item.Images_first}
-      <div class="spectrum-Card-preview">
-        <div class="spectrum-Asset">
-          <img
-            alt="{item.Title} card thumbnail"
-            class="spectrum-Asset-image"
-            src={item.Images_first}
-            style="max-width: 75%; max-height: 75%; object-fit: contain;"
-          />
-        </div>
-      </div>
+    {#if item.Image}
+      <img
+        alt="{item.Title} card thumbnail"
+        class="spectrum-Asset-image"
+        src={item.Image[0].url}
+        style="max-width: 100%; object-fit: cover;"
+      />
     {/if}
     <div class="spectrum-Card-body">
       <div class="spectrum-Card-header flexed">
@@ -115,9 +109,7 @@
 
 <style>
   .kanban-cards {
-    /* background-color: white; */
     margin: 0.5rem 0;
-    padding: 0.5rem;
     border-radius: 0.5rem;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     cursor: move;
