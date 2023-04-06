@@ -59,7 +59,7 @@
       }
     }}
   >
-    {#if item.Image}
+    {#if item.Image && item.Image[0]}
       <img
         alt="{item.Title} card thumbnail"
         class="spectrum-Asset-image"
