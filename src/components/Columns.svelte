@@ -17,7 +17,6 @@
   const component = getContext("component");
   const { API, notificationStore } = getContext("sdk");
 
-  // reduce statuses the array for more mangable data
   // set emitted item from card component
   function handleDragStart(event) {
     draggedItem = event.detail;
@@ -27,7 +26,7 @@
     columns = event.detail;
   }
   // move items kanban style
-  function moveItem() {
+  async function moveItem() {
     const reducedStatuses = tableStatuses.map(({ _id, Title, tableId }) => ({ _id, Title, tableId }));
     // find specific object within reduce statuses arr
     const findDroppedStatusObj = reducedStatuses.find(
@@ -53,24 +52,31 @@
     if (originalArrayName === draggedArrayName) {
       return; // exit the function without making any changes
     }
-    // remove the dragged item from the original array and add it to the dropped array
-    const droppedArray = columns[draggedArrayName];
-    const updatedDraggedItem = { ...draggedItem }; // make a copy of the dragged item to avoid modifying the original
-    originalArray.splice(draggedIndex, 1); // remove dragged item from original Array
-    droppedArray.push(updatedDraggedItem); // push drag item to new dragged array
-    // update the columns object
-    columns = {
-      ...columns,
-      [originalArrayName]: originalArray,
-      [draggedArrayName]: droppedArray,
-    };
+    // remove if issues arise with doc conflicts etc, this just makes it really snappy for moving
+      // remove the dragged item from the original array and add it to the dropped array
+      const droppedArray = columns[draggedArrayName];
+      const updatedDraggedItem = { ...draggedItem }; // make a copy of the dragged item to avoid modifying the original
+      originalArray.splice(draggedIndex, 1); // remove dragged item from original Array
+      droppedArray.push(updatedDraggedItem); // push drag item to new dragged array
+      // update the columns object
+      columns = {
+        ...columns,
+        [originalArrayName]: originalArray,
+        [draggedArrayName]: droppedArray,
+      };
+    // 
     // save card in the backend after its moved.
-    API.saveRow({
-      _id: draggedItem._id,
-      tableId: draggedItem.tableId,
-      Title: draggedItem.Title,
-      [kanbanCardTitles]: [draggedItem[kanbanCardTitles]],
-    });
+    try {
+      await API.saveRow({
+        _id: draggedItem._id,
+        tableId: draggedItem.tableId,
+        Title: draggedItem.Title,
+        [kanbanCardTitles]: [draggedItem[kanbanCardTitles]],
+      });
+      await fetchTables();
+    } catch (error) {
+      console.log(error);
+    }
     notificationStore.actions.success(
       `Your card ${draggedItem.Title} has been successfully moved!`
     );
@@ -256,7 +262,6 @@
   .kanban-column {
     flex: 1;
     margin: 0 0.5rem;
-    /* background-color: #a4a4a4; */
     padding: 1rem;
     border-radius: 0.5rem;
   }
