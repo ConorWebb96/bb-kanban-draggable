@@ -7,10 +7,6 @@
     "description": "Dragable Kanban cards area allowing for status changes.",
     "icon": "ViewColumn",
     "draggable": false,
-    "size": {
-      "width": 1080,
-      "height": 550
-    },
     "features": {
       "state": true,
       "showNotificationAction": true,
