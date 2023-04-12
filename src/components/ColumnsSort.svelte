@@ -1,8 +1,8 @@
 <script>
-    import { getContext, onMount } from 'svelte';
+    import { getContext, createEventDispatcher } from 'svelte';
   
     export let tableStatuses;
-    export let fetchTables;
+    const dispatch = createEventDispatcher();
   
     const { API, notificationStore } = getContext('sdk');
   
@@ -26,23 +26,8 @@
                 0,
                 tableStatuses.splice(dragIndex, 1)[0]
             );
-            try {
-                const promises = reactiveTableStatuses.map((status, index) => {
-                    return API.saveRow({
-                        ...status,
-                        Order: index + 1,
-                    }).catch((error) => {
-                        console.error(error);
-                    });
-                });
-                await Promise.all(promises);
-                await fetchTables();
-                notificationStore.actions.success(
-                    `Your column orders have been successfully rearranged.`
-                );
-            }catch (error) {
-                console.log('Something went wrong with reordering the columns ', error)
-            }
+            dispatch('tableStatusesUpdated', reactiveTableStatuses);
+            reactiveTableStatuses = tableStatuses;
         }
         dragIndex = null;
         dropIndex = null;
@@ -50,7 +35,7 @@
 </script>
   
 <div on:drop={handleDrop}>
-    {#each tableStatuses as status, index}
+    {#each reactiveTableStatuses as status, index}
         <div
         class="status-item"
         draggable="true"
