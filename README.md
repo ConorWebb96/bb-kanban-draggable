@@ -21,7 +21,7 @@ With this plugin you are able to create and delete tickets, Create and delete co
     * **Description**
     * **Image** - Optional field not required
 
-* Create an additional table with the following fields - this table is form the column headings and linking between cards.
+* Create an additional table with the following fields - this table is for the column headings and linking cards to their stage in the pipeline.
     * **Title** make sure the toggle `use as table display column` is on
     * Relationship link between the Card/Ticket and the State table - (one State to many Cards/Tickets.)
 
