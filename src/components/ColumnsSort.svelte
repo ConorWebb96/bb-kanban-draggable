@@ -37,7 +37,7 @@
 <div on:drop={handleDrop}>
     {#each reactiveTableStatuses as status, index}
         <div
-        class="status-item"
+        class="status-item spectrum-Card-content"
         draggable="true"
         on:dragstart={(event) => handleDragStart(event, index)}
         on:dragover={(event) => handleDragOver(event, index)}
@@ -53,10 +53,13 @@
   
 <style>
     .status-item {
+        display: block!important;
+        height: auto;
         padding: 10px;
         margin-bottom: 10px;
-        border: 1px solid #ccc;
-        background-color: #f8f8f8;
+        background-color: var(--spectrum-textfield-m-background-color, var(--spectrum-global-color-gray-50));
+        border-color: var(--spectrum-textfield-m-border-color, var(--spectrum-alias-border-color));
+        color: var(--spectrum-textfield-m-text-color, var(--spectrum-alias-text-color));
         cursor: pointer;
     }
 </style>

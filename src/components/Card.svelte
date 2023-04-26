@@ -123,4 +123,9 @@
   button {
     cursor: pointer;
   }
+  .spectrum-Card-content {
+    height: 100%!important;
+    align-items: center;
+    text-align: left;
+  }
 </style>

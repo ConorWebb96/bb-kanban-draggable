@@ -167,11 +167,11 @@
     <div class="header">
         <h2>{#if title}{title}{/if}</h2>
         <div class="header">
-          <input type="text" bind:value={searchQuery} placeholder="Title & Desc" class="customInput" />
+          <input type="text" bind:value={searchQuery} placeholder="Search..." class="customInput spectrum-Textfield-input" />
           <button
             on:click={modal.show()}
             class="spectrum-Button spectrum-Button--sizeM spectrum-Button--cta"
-            style="margin-right: 0.5rem;"
+            style="margin-right: 0.5rem; min-width: fit-content;"
             >Add Column</button
           >
           {#if tableStatuses.length > 0 && tableStatuses[0].hasOwnProperty('Order')}
@@ -250,7 +250,7 @@
   .customInput {
     display: block;
     border-radius: 4px;
-    border: 1px solid rgb(220 220 220);
+    /* border: 1px solid rgb(220 220 220); */
     padding: 6px;
     margin-right: 0.5rem;
   }
