@@ -99,9 +99,11 @@
         </button>
       </div>
       <div class="spectrum-Card-content">
-        {item.Description.length > 50
-          ? item.Description.substring(0, 250) + "..."
-          : item.Description}
+        {#if item.Description != undefined}
+          {item.Description.length > 50
+            ? item.Description.substring(0, 250) + "..."
+            : item.Description}
+        {/if}
       </div>
     </div>
   </div>
