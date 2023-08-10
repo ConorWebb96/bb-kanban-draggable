@@ -34,7 +34,7 @@
       },
       {
         "type": "field",
-        "label": "Kanban Card Titles",
+        "label": "Relationship Field",
         "key": "kanbanCardTitles",
         "dependsOn": "dataProvider",
         "required": true

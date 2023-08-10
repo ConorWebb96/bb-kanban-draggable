@@ -1,6 +1,6 @@
 {
   "name": "bb-kanban-draggable",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Dragable Kanban cards area allowing for status changes.",
   "license": "MIT",
   "svelte": "index.js",
