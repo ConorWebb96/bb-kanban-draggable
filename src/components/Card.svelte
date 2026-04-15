@@ -84,7 +84,7 @@
         alt="{getCardTitle(item)} card thumbnail"
         class="spectrum-Asset-image"
         src={item.Image.url}
-        style="max-width: 100%; object-fit: cover;"
+        style="width: 100%; height: 250px; object-fit: cover; object-position: center;"
       />
     {/if}
     <div class="spectrum-Card-body">
