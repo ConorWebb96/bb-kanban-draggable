@@ -79,11 +79,11 @@
       }
     }}
   >
-    {#if item.Image && item.Image[0]}
+    {#if item.Image}
       <img
         alt="{getCardTitle(item)} card thumbnail"
         class="spectrum-Asset-image"
-        src={item.Image[0].url}
+        src={item.Image.url}
         style="max-width: 100%; object-fit: cover;"
       />
     {/if}
