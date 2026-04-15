@@ -36,15 +36,17 @@
       },
       {
         "type": "field",
-        "label": "Relationship Field",
+        "label": "Single Select Field",
         "key": "kanbanCardTitles",
         "dependsOn": "dataProvider",
+        "explanation": {
+          "typeSupport": {
+            "supported": [
+              "options"
+            ]
+          }
+        },
         "required": true
-      },
-      {
-        "type": "table",
-        "key": "table",
-        "label": "Relationship table"
       },
       {
         "type": "event",

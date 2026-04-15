@@ -12,10 +12,23 @@
   export let onClick;
   export let cardsTableId;
   export let fetchTables;
+  export let updateStatusOptions;
+  export let primaryField;
+  export let descriptionField;
 
   let draggedItem;
   const component = getContext("component");
   const { API, notificationStore } = getContext("sdk");
+
+  function getCardTitle(card) {
+    const value =
+      card?.[primaryField] ??
+      card?.Title ??
+      card?.Name ??
+      card?._id ??
+      "";
+    return String(value);
+  }
 
   // set emitted item from card component
   function handleDragStart(event) {
@@ -26,35 +39,39 @@
     columns = event.detail;
   }
   // move items kanban style
-  async function moveItem() {
-    const reducedStatuses = tableStatuses.map(({ _id, Title, tableId }) => ({ _id, Title, tableId }));
-    // find specific object within reduce statuses arr
-    const findDroppedStatusObj = reducedStatuses.find(
-      (status) => status.Title === draggedArrayName
-    );
-    // delete state field and update with new moved state info
-    delete draggedItem[kanbanCardTitles];
-    draggedItem[kanbanCardTitles] = {
-      _id: findDroppedStatusObj._id,
-      primaryDisplay: findDroppedStatusObj.Title,
-    };
+  async function moveItem(event, dropArrayName) {
+    const targetArrayName = dropArrayName || draggedArrayName;
+    if (!targetArrayName || !columns[targetArrayName]) {
+      return;
+    }
+    if (!draggedItem) {
+      return;
+    }
+    // Single select fields are stored as plain strings.
+    draggedItem[kanbanCardTitles] = targetArrayName;
     // find the dragged item in the original array
     const originalArrayName = Object.keys(columns).find((arrayName) =>
       columns[arrayName].some(
-        (item) => item["Auto ID"] === draggedItem["Auto ID"]
+        (item) => item._id === draggedItem._id
       )
     );
+    if (!originalArrayName) {
+      return;
+    }
     const originalArray = columns[originalArrayName]; // Get the original column array
     const draggedIndex = originalArray.findIndex(
-      (item) => item["Auto ID"] === draggedItem["Auto ID"]
+      (item) => item._id === draggedItem._id
     ); // get the dragged index
     // check if the dragged item is being dropped onto its original column
-    if (originalArrayName === draggedArrayName) {
+    if (originalArrayName === targetArrayName) {
       return; // exit the function without making any changes
     }
     // remove if issues arise with doc conflicts etc, this just makes it really snappy for moving
       // remove the dragged item from the original array and add it to the dropped array
-      const droppedArray = columns[draggedArrayName];
+      const droppedArray = columns[targetArrayName];
+      if (!droppedArray) {
+        return;
+      }
       const updatedDraggedItem = { ...draggedItem }; // make a copy of the dragged item to avoid modifying the original
       originalArray.splice(draggedIndex, 1); // remove dragged item from original Array
       droppedArray.push(updatedDraggedItem); // push drag item to new dragged array
@@ -62,7 +79,7 @@
       columns = {
         ...columns,
         [originalArrayName]: originalArray,
-        [draggedArrayName]: droppedArray,
+        [targetArrayName]: droppedArray,
       };
     // 
     // save card in the backend after its moved.
@@ -70,17 +87,18 @@
       await API.saveRow({
         _id: draggedItem._id,
         tableId: draggedItem.tableId,
-        Title: draggedItem.Title,
-        [kanbanCardTitles]: [draggedItem[kanbanCardTitles]],
+        [primaryField]: getCardTitle(draggedItem),
+        [kanbanCardTitles]: draggedItem[kanbanCardTitles],
       });
       await fetchTables();
     } catch (error) {
       console.log(error);
     }
     notificationStore.actions.success(
-      `Your card ${draggedItem.Title} has been successfully moved!`
+      `Your card ${getCardTitle(draggedItem)} has been successfully moved!`
     );
     draggedArrayName = null;
+    draggedItem = null;
   }
   async function deleteColumn(columnName) {
     // refresh tables before deleting
@@ -89,72 +107,33 @@
     } catch (error) {
       console.log('Failed to fetch tables before deletions', error);
     }
-    // find everything needed to perform the next actions.
-    const reducedStatuses = tableStatuses.map(({ _id, Title, tableId }) => ({ _id, Title, tableId }));
-    const findDeletedColumn = reducedStatuses.find((status) => status.Title === columnName);
+    const reducedStatuses = tableStatuses.map(({ Title }) => ({ Title }));
     if (columnName === "Backlog") {
       return;
     }
-    if (!columns["Backlog"]) {
-      columns["Backlog"] = [];
-      try {
-        // create backlog if it doesn't exist
-        const backlogTable = API.saveRow({
-          tableId: findDeletedColumn.tableId,
-          Title: "Backlog",
-        });
-        await backlogTable.then((data) => {
-          // bulk move cards within the backend to backlog
-          Promise.all(columns[columnName].map(async (card) => {
-            await API.saveRow({
-              _id: card._id,
-              tableId: card.tableId,
-              Title: card.Title,
-              [kanbanCardTitles]: [data],
-            });
-          }));
-        })
-        .catch((error) => {
-          console.error('Error transfering the cards to default column', error);
-        });
-        await API.deleteRow({
-          tableId: findDeletedColumn.tableId,
-          rowId: findDeletedColumn._id,
-          revId: findDeletedColumn._rev,
-        });
-        // Update the columns object after successful deletion
-        columns["Backlog"] = columns["Backlog"].concat(columns[columnName]);
-        delete columns[columnName];
-      } catch (error) {
-        console.log("Error creating backlog and moving tickets", error);
-      }
-    }else {
-      // initialise find backlog status var
-      let findBacklogStatus = reducedStatuses.find((status) => status.Title === "Backlog");
+    const statusTitles = reducedStatuses.map((status) => status.Title);
+    const nextStatusTitles = statusTitles.filter((title) => title !== columnName);
+    if (!nextStatusTitles.includes("Backlog")) {
+      nextStatusTitles.unshift("Backlog");
+    }
 
-      try {
-        await Promise.all(columns[columnName].map(async (card) => {
-          await API.saveRow({
-            _id: card._id,
-            tableId: card.tableId,
-            Title: card.Title,
-            [kanbanCardTitles]: [findBacklogStatus],
-          });
-        }));
-
-        await API.deleteRow({
-          tableId: findDeletedColumn.tableId,
-          rowId: findDeletedColumn._id,
-          revId: findDeletedColumn._rev,
+    try {
+      await updateStatusOptions(nextStatusTitles);
+      await Promise.all((columns[columnName] || []).map(async (card) => {
+        await API.saveRow({
+          _id: card._id,
+          tableId: card.tableId,
+          [primaryField]: getCardTitle(card),
+          [kanbanCardTitles]: "Backlog",
         });
-
-        await fetchTables();
-
-        // Update the columns object after successful deletion
-        delete columns[columnName];
-      } catch (error) {
-        console.log("There was an error during deletion", error);
-      }
+      }));
+      await fetchTables();
+    } catch (error) {
+      console.log("There was an error during deletion", error);
+      notificationStore.actions.error(
+        `Unable to delete ${columnName}.`
+      );
+      return;
     }
     notificationStore.actions.success(
       `Your column ${columnName} has been successfully deleted!`
@@ -162,19 +141,17 @@
   }
   // add new card to specific column
   async function addCard(arrayName) {
-    const reducedStatuses = tableStatuses.map(({ _id, Title, tableId }) => ({ _id, Title, tableId }));
-    // find specific object within reduce statuses arr
-    const findAddStatus = reducedStatuses.find(
-      (status) => status.Title === arrayName
-    ); 
     try {
       // save card in the backend after its moved.
-      await API.saveRow({
+      const payload = {
         tableId: cardsTableId,
-        Title: "New Card",
-        Description: "",
-        [kanbanCardTitles]: [findAddStatus],
-      });
+        [primaryField]: "New Card",
+        [kanbanCardTitles]: arrayName,
+      };
+      if (descriptionField) {
+        payload[descriptionField] = "";
+      }
+      await API.saveRow(payload);
     } catch (error) {
       console.log(error);
     }
@@ -200,7 +177,7 @@
     class:is-dragged={draggedArrayName === arrayName}
     on:dragover|preventDefault={handleDragover(arrayName)}
     on:dragleave|preventDefault={handleDragleave(arrayName)}
-    on:drop|preventDefault={moveItem}
+    on:drop|preventDefault={(event) => moveItem(event, arrayName)}
     style="min-width: {CardWidths}px;"
     role="region"
   >
@@ -251,6 +228,8 @@
         {column}
         {arrayName}
         {onClick}
+        {primaryField}
+        {descriptionField}
         on:item-dragged={handleDragStart}
         on:columnsUpdated={handleColumnsUpdated}
       />

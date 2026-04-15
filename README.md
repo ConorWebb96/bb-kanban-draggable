@@ -2,7 +2,7 @@
 This is the read me for the Kanban draggable plugin.
 
 # Description
-With this plugin you are able to create and delete tickets, Create and delete columns and manage ticket states.
+With this plugin you are able to create and delete tickets, create and delete columns, and manage ticket states using a single select field in the same table.
 
 ## Features
 * Creation of new columns
@@ -19,17 +19,12 @@ With this plugin you are able to create and delete tickets, Create and delete co
 * Create a table with the following fields.
     * **Title** make sure the toggle `use as table display column` is on
     * **Description**
+    * **Status** - Single Select field (this powers the Kanban columns)
     * **Image** - Optional field not required
 
-* Create an additional table with the following fields - this table is for the column headings and linking cards to their stage in the pipeline.
-    * **Title** make sure the toggle `use as table display column` is on
-    * Relationship link between the Card/Ticket and the State table - (one State to many Cards/Tickets.)
-
-    ### Additional Notes
-    * There is ordering functionality for the columns.
-        * You will need to add an Order column for the State table, this column should be a Number field.
-        * Make sure that these are incremented by 1 as the inbuilt functionality works in this way.
-        * Optionally you can create the columns purely through the frontend and it will increment everything on its own.
+### Additional Notes
+* Column headings come from the configured single select field options.
+* Column creation, deletion, and reordering updates that options list for you.
 
 ## Demo
 ![Kanban Demo](https://user-images.githubusercontent.com/126772285/234514184-a4913b9e-4539-4a1a-a8a0-a659906d7260.gif)

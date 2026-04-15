@@ -5,20 +5,40 @@
   export let column;
   export let arrayName;
   export let onClick;
+  export let primaryField;
+  export let descriptionField;
 
   const { API, notificationStore } = getContext("sdk");
 
   const dispatch = createEventDispatcher();
+  function getCardTitle(item) {
+    const value =
+      item?.[primaryField] ??
+      item?.Title ??
+      item?.Name ??
+      item?._id ??
+      "";
+    return String(value);
+  }
+  function getCardDescription(item) {
+    if (descriptionField && item?.[descriptionField] != null) {
+      return String(item[descriptionField]);
+    }
+    if (item?.Description != null) {
+      return String(item.Description);
+    }
+    return "";
+  }
   // dispatch item to parent component
   function handleDragStart(item) {
     dispatch("item-dragged", item);
   }
   // deleted card
-  function deleteItem(arrayName, itemId, tableId, revId, rowId) {
+  function deleteItem(arrayName, rowId, tableId, revId) {
     // find the array in which the item to delete exists
     const array = columns[arrayName];
     // find the index of the item to delete
-    const indexToDelete = array.findIndex((item) => item["Auto ID"] === itemId);
+    const indexToDelete = array.findIndex((item) => item._id === rowId);
     if (indexToDelete !== -1) {
       // remove the item from the array
       array.splice(indexToDelete, 1);
@@ -47,7 +67,7 @@
   };
 </script>
 
-{#each column as item (item["Auto ID"])}
+{#each column as item (item._id)}
   <div
     class="spectrum-Card spectrum-Card--sizeM kanban-cards "
     draggable="true"
@@ -61,7 +81,7 @@
   >
     {#if item.Image && item.Image[0]}
       <img
-        alt="{item.Title} card thumbnail"
+        alt="{getCardTitle(item)} card thumbnail"
         class="spectrum-Asset-image"
         src={item.Image[0].url}
         style="max-width: 100%; object-fit: cover;"
@@ -72,18 +92,17 @@
         <div
           class="spectrum-Card-title spectrum-Heading spectrum-Heading--sizeXS"
         >
-          {item.Title.length > 35
-            ? item.Title.substring(0, 35) + "..."
-            : item.Title}
+          {getCardTitle(item).length > 35
+            ? getCardTitle(item).substring(0, 35) + "..."
+            : getCardTitle(item)}
         </div>
         <button
           on:click={() =>
             deleteItem(
               arrayName,
-              item["Auto ID"],
+              item._id,
               item.tableId,
-              item._rev,
-              item._id
+              item._rev
             )}
           class="spectrum-ClearButton spectrum-ClearButton--sizeL"
         >
@@ -99,10 +118,10 @@
         </button>
       </div>
       <div class="spectrum-Card-content">
-        {#if item.Description != undefined}
-          {item.Description.length > 50
-            ? item.Description.substring(0, 250) + "..."
-            : item.Description}
+        {#if getCardDescription(item)}
+          {getCardDescription(item).length > 50
+            ? getCardDescription(item).substring(0, 250) + "..."
+            : getCardDescription(item)}
         {/if}
       </div>
     </div>
