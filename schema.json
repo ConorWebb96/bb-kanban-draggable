@@ -1,6 +1,8 @@
 {
   "type": "component",
-  "metadata": {},
+  "metadata": {
+    "svelteMajor": 5
+  },
   "schema": {
     "name": "bb-kanban-draggable",
     "friendlyName": "Kanban",
