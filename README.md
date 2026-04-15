@@ -1,6 +1,8 @@
 # Bb-kanban-draggable
 This is the read me for the Kanban draggable plugin.
 
+> :warning: **Warning:** As of the latest update `1.3.1` it will break any existing versions of the plugin if you update. The relationship table aspect has been removed and its been changed to use Budibase single-option field instead for statuses.
+
 # Description
 With this plugin you are able to create and delete tickets, create and delete columns, and manage ticket states using a single select field in the same table.
 
