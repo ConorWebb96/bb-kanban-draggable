@@ -36,4 +36,4 @@ With this plugin you are able to create and delete tickets, create and delete co
 
 ## App export
 * An example app export with everything setup can be found here;
-[kanban-export-1691144265536.tar.gz](https://github.com/ConorWebb96/bb-kanban-draggable/files/12259729/kanban-export-1691144265536.tar.gz)
+[kanban-export-1776242502404.tar.gz](https://github.com/user-attachments/files/26742680/kanban-export-1776242502404.tar.gz)
