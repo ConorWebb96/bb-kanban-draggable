@@ -72,11 +72,6 @@
   const { styleable, API, notificationStore } = getContext("sdk");
   const component = getContext("component");
   const DEFAULT_COLUMN_TITLE = "Backlog";
-  const LOG_PREFIX = "[bb-kanban-draggable]";
-
-  const logDebug = (...args) => {
-    console.log(LOG_PREFIX, ...args);
-  };
 
   function getProviderRows(provider) {
     if (!provider) {
@@ -115,9 +110,6 @@
         hasInitialised = true;
         lastFetchKey = fetchKey;
         columnsLoaded = false;
-        logDebug("Triggering fetchTables via reactive initialiser", {
-          fetchKey,
-        });
         fetchTables();
       }
     }
@@ -145,12 +137,6 @@
     }
     const tableDefinition = await API.fetchTableDefinition(cardsTableId);
     const statusFieldDefinition = tableDefinition?.schema?.[kanbanCardTitles];
-    logDebug("Status field definition", {
-      cardsTableId,
-      kanbanCardTitles,
-      statusFieldType: statusFieldDefinition?.type,
-      constraints: statusFieldDefinition?.constraints,
-    });
     const inclusion = statusFieldDefinition?.constraints?.inclusion;
     return Array.isArray(inclusion) ? [...inclusion] : [];
   }
@@ -171,11 +157,6 @@
         inclusion: dedupedInclusion,
       },
     };
-    logDebug("Updating status options", {
-      cardsTableId,
-      kanbanCardTitles,
-      inclusion: dedupedInclusion,
-    });
     await API.saveTable(tableDefinition);
   }
 
@@ -184,10 +165,6 @@
     // If no datasource.tableId exists, use the already supplied provider rows.
     if (!cardsTableId) {
       const rows = getProviderRows(dataProvider);
-      logDebug("No cardsTableId found. Falling back to provider rows only.", {
-        providerShape: dataProvider ? Object.keys(dataProvider) : null,
-        rowsCount: rows.length,
-      });
       return rows;
     }
     try {
@@ -204,13 +181,6 @@
     isLoading = true;
     loadError = null;
     try {
-      logDebug("fetchTables start", {
-        kanbanCardTitles,
-        cardsTableId,
-        primaryField,
-        descriptionField,
-        providerShape: dataProvider ? Object.keys(dataProvider) : null,
-      });
       const rows = await fetchCardsTable();
       const inclusion = await getStatusFieldInclusion();
       const effectiveInclusion = inclusion.length ? inclusion : [DEFAULT_COLUMN_TITLE];
@@ -237,27 +207,12 @@
         }
       });
       columns = newColumns; // update columns object
-      logDebug("fetchTables success", {
-        rowsCount: rows.length,
-        statusCount: tableStatuses.length,
-        columnKeys: Object.keys(columns),
-      });
     } catch(error){
       console.log("Unable to fetch cards table", error);
       loadError = error?.message || "Unable to load kanban data.";
-      logDebug("fetchTables failed", {
-        message: error?.message,
-        cardsTableId,
-        kanbanCardTitles,
-      });
     } finally {
       columnsLoaded = true;
       isLoading = false;
-      logDebug("fetchTables finalised", {
-        columnsLoaded,
-        isLoading,
-        loadError,
-      });
     }
 }
 
